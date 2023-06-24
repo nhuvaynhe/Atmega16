@@ -1,0 +1,200 @@
+
+EEPROM.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         000000e8  00000000  00000000  00000054  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         00000000  00800060  00800060  0000013c  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .comment      00000030  00000000  00000000  0000013c  2**0
+                  CONTENTS, READONLY
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  0000016c  2**2
+                  CONTENTS, READONLY
+  4 .debug_aranges 00000030  00000000  00000000  000001a8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_info   00000663  00000000  00000000  000001d8  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_abbrev 000005c4  00000000  00000000  0000083b  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_line   00000281  00000000  00000000  00000dff  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_frame  00000044  00000000  00000000  00001080  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    00000372  00000000  00000000  000010c4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_loc    0000007c  00000000  00000000  00001436  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_ranges 00000020  00000000  00000000  000014b2  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 2a 00 	jmp	0x54	; 0x54 <__ctors_end>
+   4:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+   8:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+   c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  10:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  14:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  18:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  1c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  20:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  24:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  28:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  2c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  30:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  34:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  38:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  3c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  40:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  44:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  48:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  4c:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+  50:	0c 94 34 00 	jmp	0x68	; 0x68 <__bad_interrupt>
+
+00000054 <__ctors_end>:
+  54:	11 24       	eor	r1, r1
+  56:	1f be       	out	0x3f, r1	; 63
+  58:	cf e5       	ldi	r28, 0x5F	; 95
+  5a:	d4 e0       	ldi	r29, 0x04	; 4
+  5c:	de bf       	out	0x3e, r29	; 62
+  5e:	cd bf       	out	0x3d, r28	; 61
+  60:	0e 94 4b 00 	call	0x96	; 0x96 <main>
+  64:	0c 94 72 00 	jmp	0xe4	; 0xe4 <_exit>
+
+00000068 <__bad_interrupt>:
+  68:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+0000006c <_Z12EEPROM_writejh>:
+
+
+void EEPROM_write(unsigned int uiAdress, unsigned char ucData)
+{
+	/* Wait for completion of previous write */
+	while(EECR & (1<<EEWE));
+  6c:	e1 99       	sbic	0x1c, 1	; 28
+  6e:	fe cf       	rjmp	.-4      	; 0x6c <_Z12EEPROM_writejh>
+	
+	/* Set up address and data registers */
+	EEAR = uiAdress;
+  70:	9f bb       	out	0x1f, r25	; 31
+  72:	8e bb       	out	0x1e, r24	; 30
+	EEDR = ucData;
+  74:	6d bb       	out	0x1d, r22	; 29
+	/* Write logical one to EEMWE */
+	EECR |= (1<<EEMWE);
+  76:	8c b3       	in	r24, 0x1c	; 28
+  78:	84 60       	ori	r24, 0x04	; 4
+  7a:	8c bb       	out	0x1c, r24	; 28
+	/* Start eeprom write by setting EEWE */
+	EECR |= (1<<EEWE);
+  7c:	8c b3       	in	r24, 0x1c	; 28
+  7e:	82 60       	ori	r24, 0x02	; 2
+  80:	8c bb       	out	0x1c, r24	; 28
+  82:	08 95       	ret
+
+00000084 <_Z11EEPROM_readj>:
+}
+
+unsigned char EEPROM_read(unsigned int uiAddress)
+{
+	/* Wait for completion of previous write */
+	while(EECR & (1<<EEWE));
+  84:	e1 99       	sbic	0x1c, 1	; 28
+  86:	fe cf       	rjmp	.-4      	; 0x84 <_Z11EEPROM_readj>
+	
+	/* Set up address register */	
+	EEAR = uiAddress;
+  88:	9f bb       	out	0x1f, r25	; 31
+  8a:	8e bb       	out	0x1e, r24	; 30
+	/* Start eeprom read by writing EERE */
+	EECR |= (1<<EERE);
+  8c:	8c b3       	in	r24, 0x1c	; 28
+  8e:	81 60       	ori	r24, 0x01	; 1
+  90:	8c bb       	out	0x1c, r24	; 28
+	/* Return data from data register */
+	return EEDR;
+  92:	8d b3       	in	r24, 0x1d	; 29
+}
+  94:	08 95       	ret
+
+00000096 <main>:
+
+
+	
+int main(void)
+{
+    DDRB = 0x00;
+  96:	17 ba       	out	0x17, r1	; 23
+	DDRC = 0xFF;
+  98:	8f ef       	ldi	r24, 0xFF	; 255
+  9a:	84 bb       	out	0x14, r24	; 20
+	DDRD = 0xFF;
+  9c:	81 bb       	out	0x11, r24	; 17
+	
+	int ite = 0;
+  9e:	c0 e0       	ldi	r28, 0x00	; 0
+  a0:	d0 e0       	ldi	r29, 0x00	; 0
+	
+    while (1) 
+    {
+		if(bit_is_clear(PINB, 0))
+  a2:	b0 99       	sbic	0x16, 0	; 22
+  a4:	05 c0       	rjmp	.+10     	; 0xb0 <main+0x1a>
+		{
+			while(bit_is_clear(PINB,0));
+  a6:	b0 9b       	sbis	0x16, 0	; 22
+  a8:	fe cf       	rjmp	.-4      	; 0xa6 <main+0x10>
+			++ite;
+  aa:	21 96       	adiw	r28, 0x01	; 1
+			PORTC = ite;
+  ac:	c5 bb       	out	0x15, r28	; 21
+  ae:	f9 cf       	rjmp	.-14     	; 0xa2 <main+0xc>
+		}
+		else if(bit_is_clear(PINB, 1))
+  b0:	b1 99       	sbic	0x16, 1	; 22
+  b2:	05 c0       	rjmp	.+10     	; 0xbe <main+0x28>
+		{
+			while(bit_is_clear(PINB,1));
+  b4:	b1 9b       	sbis	0x16, 1	; 22
+  b6:	fe cf       	rjmp	.-4      	; 0xb4 <main+0x1e>
+			--ite;
+  b8:	21 97       	sbiw	r28, 0x01	; 1
+			PORTC = ite;
+  ba:	c5 bb       	out	0x15, r28	; 21
+  bc:	f2 cf       	rjmp	.-28     	; 0xa2 <main+0xc>
+		}
+		else if(bit_is_clear(PINB, 2))
+  be:	b2 99       	sbic	0x16, 2	; 22
+  c0:	08 c0       	rjmp	.+16     	; 0xd2 <main+0x3c>
+		{
+			while(bit_is_clear(PINB,2));
+  c2:	b2 9b       	sbis	0x16, 2	; 22
+  c4:	fe cf       	rjmp	.-4      	; 0xc2 <main+0x2c>
+			EEPROM_write(ite, 5);
+  c6:	65 e0       	ldi	r22, 0x05	; 5
+  c8:	ce 01       	movw	r24, r28
+  ca:	0e 94 36 00 	call	0x6c	; 0x6c <_Z12EEPROM_writejh>
+			PORTC = ite;
+  ce:	c5 bb       	out	0x15, r28	; 21
+  d0:	e8 cf       	rjmp	.-48     	; 0xa2 <main+0xc>
+		}
+		else if(bit_is_clear(PINB, 3))
+  d2:	b3 99       	sbic	0x16, 3	; 22
+  d4:	e6 cf       	rjmp	.-52     	; 0xa2 <main+0xc>
+		{
+			while(bit_is_clear(PINB, 3));
+  d6:	b3 9b       	sbis	0x16, 3	; 22
+  d8:	fe cf       	rjmp	.-4      	; 0xd6 <main+0x40>
+			PORTD = EEPROM_read(ite);
+  da:	ce 01       	movw	r24, r28
+  dc:	0e 94 42 00 	call	0x84	; 0x84 <_Z11EEPROM_readj>
+  e0:	82 bb       	out	0x12, r24	; 18
+  e2:	df cf       	rjmp	.-66     	; 0xa2 <main+0xc>
+
+000000e4 <_exit>:
+  e4:	f8 94       	cli
+
+000000e6 <__stop_program>:
+  e6:	ff cf       	rjmp	.-2      	; 0xe6 <__stop_program>
